@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voice-First Smart Attendance - Level 3 Secure</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <!-- Load GSAP for gorgeous animations -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+</head>
+<body>
+    <div class="background-animation">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+        <div class="blob blob-3"></div>
+    </div>
+
+    <div class="container">
+        <header class="app-header">
+            <h1 class="glow-text">Smart Attendance</h1>
+            <p>Level 3 Secure: Text & Biometric Voice Verification</p>
+        </header>
+
+        <main>
+            <div class="glass-card main-card">
+                <div class="tabs-container">
+                    <button id="tab-attendance" class="tab active">
+                        <span class="icon">🎙️</span> Mark Attendance
+                    </button>
+                    <button id="tab-register" class="tab">
+                        <span class="icon">📝</span> Register Voice
+                    </button>
+                    <div class="tab-indicator"></div>
+                </div>
+
+                <div class="section-wrapper">
+                    <!-- Registration Section -->
+                    <div id="section-register" class="section hidden">
+                        <div class="instruction-box">
+                            <div class="step"><span>1</span> Enter your full name below.</div>
+                            <div class="step"><span>2</span> Record a 3-5 second sample of your voice.</div>
+                        </div>
+                        
+                        <div class="input-group">
+                            <input type="text" id="register-name" placeholder="E.g., Akshay Sharma" class="modern-input" autocomplete="off">
+                            <i class="feather-user"></i>
+                        </div>
+
+                        <button id="register-btn" class="action-btn glow-btn">
+                            <span id="reg-mic-icon" class="btn-icon">🎤</span>
+                            <span id="reg-btn-text">Record & Register</span>
+                        </button>
+                    </div>
+
+                    <!-- Attendance Section -->
+                    <div id="section-attendance" class="section">
+                        <div class="instruction-box highlight-instruction">
+                            <p>Say loudly and clearly:</p>
+                            <h3>"I am [Your Name], present today"</h3>
+                        </div>
+                        
+                        <button id="start-btn" class="action-btn glow-btn">
+                            <span id="att-mic-icon" class="btn-icon">🎤</span>
+                            <span id="att-btn-text">Start Attendance</span>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Audio Visualizer Canvas -->
+                <div class="visualizer-container">
+                    <canvas id="audio-visualizer"></canvas>
+                </div>
+
+                <!-- Status & Processing -->
+                <div id="status-display" class="status-display hidden">
+                    <div class="fancy-spinner">
+                        <div class="spinner-ring"></div>
+                        <div class="spinner-dot"></div>
+                    </div>
+                    <span id="status-text">Listening...</span>
+                </div>
+                
+                <!-- Results Dashboard -->
+                <div id="results" class="results-dashboard hidden">
+                    <div class="result-header">
+                        <h2>Verification Results</h2>
+                    </div>
+                    
+                    <div class="result-grid">
+                        <div class="stat-card">
+                            <span class="stat-label">Recognized Text</span>
+                            <p id="transcript-text" class="stat-value text-value">...</p>
+                        </div>
+                        <div class="stat-card">
+                            <span class="stat-label">Biometric Match</span>
+                            <div class="score-wrapper">
+                                <p id="similarity-score" class="stat-value score-value">0.000</p>
+                                <span class="score-max">/ 1.0</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="feedback-box" class="feedback-banner">
+                        <div class="feedback-icon" id="feedback-icon">...</div>
+                        <div class="feedback-content">
+                            <h4 id="feedback-title">Status</h4>
+                            <p id="feedback-text">...</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <audio id="audio-player" style="display: none;"></audio>
+            </div>
+        </main>
+        
+        <footer class="app-footer">
+            <p>Powered by Resemblyzer & Murf AI</p>
+        </footer>
+    </div>
+
+    <!-- Inject Feather Icons -->
+    <script src="https://unpkg.com/feather-icons"></script>
+    <script>
+        feather.replace();
+    </script>
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
