@@ -1,84 +1,58 @@
-# Voice-First Smart Attendance System (Level 3 Secure Upgrade)
+# Voice-First Smart Attendance System (Level 3+ Secure Upgrade)
 
-A complete, hackathon-ready prototype of a voice-first smart attendance system upgraded with **Level 3 Security features**. It utilizes dual-verification: combining text (what is said) with voice biometrics (who is saying it) to prevent spoofing.
+A professional, hackathon-ready smart attendance system upgraded with **Level 3+ Security features**. This system ensures physical presence and prevents cheating through a combination of QR session control, browser-based focus locking, and robust voice biometrics.
 
-## Features
-- **Registration Phase**: Students register their name and record a voice sample. The system generates a numerical Voice Embedding (biometric signature).
-- **Dual-Layer Attendance (Level 3)**:
-  1. **Text Verification**: Uses `SpeechRecognition` to ensure the student actually said their name.
-  2. **Voice Verification**: Uses `resemblyzer` to generate an embedding of the live audio and calculates **Cosine Similarity** against their registered signature. Passes only if score > 0.75.
-- **Intelligent Responses**: Generates dynamic voice confirmations using Murf AI API.
+## 🛡️ Key Security Features
 
-## Prerequisites
+### 1. Teacher-Controlled QR Sessions
+- **Dynamic QR Code**: Teachers initiate a session, generating a unique ID and a time-limited QR code (60s expiry).
+- **Physical Presence**: Students must be physically in the room to scan the QR code from the smart board.
+- **Single-Use**: Each student can only mark attendance once per session ID.
 
-- Python 3.8+
-- Active Internet Connection (for STT and Murf AI services)
-- [Murf AI API Key](https://murf.ai)
+### 2. Browser Focus Lock (Anti-Cheating)
+- **Immediate Detection**: Once a student enters an attendance session, the "Focus Mode" triggers.
+- **Disqualification**: If the student switches tabs, minimizes the browser, or opens another app, they are **immediately disqualified** for that session.
+- **Persistent Overlay**: A "Session Terminated" overlay prevents any further interaction after a security breach.
 
-## Setup Instructions
+### 3. Level 3 Voice Biometrics
+- **3-Sample Registration**: Students record 3 voice samples during registration. The system averages these embeddings for a highly accurate biometric signature.
+- **Dual-Layer Verification**:
+    1. **Text Verification**: Ensures the student says the unique daily "Challenge Sentence" to prevent replay attacks.
+    2. **Voice Verification**: Uses **Resemblyzer** for cosine similarity check (Threshold: 0.65).
+- **Intelligent Responses**: Real-time voice confirmation via **Murf AI**.
 
-1. **Install dependencies:**
-   Open a terminal in this directory and run:
-   ```bash
-   pip install -r requirements.txt
-   ```
+## 🚀 Setup Instructions
 
-### ⚠️ Fixing Resemblyzer on Windows (CRITICAL FOR LEVEL 3)
-The `resemblyzer` packge relies on `webrtcvad`, which contains C++ code that must be compiled natively on Windows. 
+1.  **Install dependencies:**
+    ```bash
+    pip install -r requirements.txt
+    ```
 
-**Follow these exact steps to fix the common C++ installation error:**
+### ⚠️ Windows Fix (Resemblyzer)
+`resemblyzer` requires C++ build tools for `webrtcvad`:
+1.  Install [Visual Studio Build Tools](https://visualstudio.microsoft.com/visual-cpp-build-tools/) (Select "Desktop development with C++").
+2.  Install [CMake](https://cmake.org/download/) and **Add to PATH**.
+3.  Restart terminal and run: `pip install resemblyzer numpy soundfile`
 
-1. **Install Microsoft Visual Studio Build Tools:**
-   - Go to [Microsoft C++ Build Tools](https://visualstudio.microsoft.com/visual-cpp-build-tools/).
-   - Download and run the installer (`vs_buildtools.exe`).
-   - In the installer, check the box for **"Desktop development with C++"**.
-   - Make sure **"MSVC v143 - VS 2022 C++ x64/x86 build tools"** and **"Windows 10/11 SDK"** are selected on the right side.
-   - Click **Install** (This is a large download and might take a while).
+2.  **Add Your Murf API Key:**
+    Create a `.env` file in the root directory:
+    ```env
+    MURF_API_KEY=your_apikey_here
+    ```
 
-2. **Install CMake:**
-   - Go to [CMake Downloads](https://cmake.org/download/).
-   - Download the Windows x64 Installer (e.g., `cmake-3.XX.X-windows-x64.msi`).
-   - Run the installer. **CRITICAL:** When asked, select **"Add CMake to the system PATH for all users"**.
+3.  **Run the Backend:**
+    ```bash
+    python backend/app.py
+    ```
 
-3. **Restart Your Terminal/Computer:**
-   - Close your current terminal to refresh the environment variables, or restart your PC safely.
+## 🛠 Project Structure
+- `backend/app.py`: Flask server with session management and Resemblyzer integration.
+- `frontend/templates/index.html`: Responsive UI with Student/Teacher view switching.
+- `frontend/static/script.js`: Core logic for QR scanning, audio capture, and Focus Lock.
+- `embeddings/`: Directory where registered voice signatures are stored.
+- `students.json`: Student database for quick lookup.
 
-4. **Verify Installation:**
-   ```bash
-   cl
-   cmake --version
-   ```
-   *(Both commands should output version info and not "command not found").*
+---
 
-5. **Retry Installation:**
-   ```bash
-   pip install resemblyzer numpy soundfile
-   ```
-
-2. **Add Your Murf API Key:**
-   Create a `.env` file in the root directory (where `app.py` is located) and add your Murf API credentials:
-   ```env
-   MURF_API_KEY=your_murf_api_key_here
-   ```
-   *(Note: The system will still work without the API key, but it will skip generating voice feedback and will show a fallback UI message instead.)*
-
-3. **Configure the Database (Optional):**
-   Modify `students.json` to include any custom names you wish to test with.
-
-4. **Run the Backend:**
-   ```bash
-   python app.py
-   ```
-
-5. **Test the Application:**
-   Open your browser and navigate to `http://localhost:5000`. 
-   - **Step 1:** Go to the "Register Voice" tab, enter your name, and record a short sample.
-   - **Step 2:** Go to the "Mark Attendance" tab, say "I am [Your Name]". See the security score calculate and successfully log you in!
-   - **Step 3:** Have a friend try to spoof your name to see it rejected by the biometric similiarity score.
-
-## Project Structure
-- `app.py`: Flask routing and backend logic connecting to STT/TTS APIs.
-- `students.json`: Mock database.
-- `templates/index.html`: Web interface.
-- `static/style.css`: Modern visual styling for the frontend.
-- `static/script.js`: Client-side logic for capturing hardware audio into browser-native valid WAV blobs for backend analysis.
+**Built for the Future of Secure Education.**
+*Powered by Resemblyzer & Murf AI*
