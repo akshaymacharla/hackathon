@@ -9,6 +9,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <!-- Load GSAP for gorgeous animations -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <!-- QR Libraries -->
+    <script src="https://unpkg.com/html5-qrcode"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 </head>
 <body>
     <div class="background-animation">
@@ -20,7 +23,11 @@
     <div class="container">
         <header class="app-header">
             <h1 class="glow-text">Smart Attendance</h1>
-            <p>Level 3 Secure: Text & Biometric Voice Verification</p>
+            <p>Integrated QR Session & Voice Biometrics</p>
+            <div class="view-switcher">
+                <button id="btn-student-view" class="switch-btn active">Student</button>
+                <button id="btn-teacher-view" class="switch-btn">Teacher</button>
+            </div>
         </header>
 
         <main>
@@ -36,35 +43,86 @@
                 </div>
 
                 <div class="section-wrapper">
-                    <!-- Registration Section -->
-                    <div id="section-register" class="section hidden">
+                    <!-- Student QR Entry Section -->
+                    <div id="section-qr-scan" class="section">
                         <div class="instruction-box">
-                            <div class="step"><span>1</span> Enter your full name below.</div>
-                            <div class="step"><span>2</span> Record a 3-5 second sample of your voice.</div>
+                            <p>Please scan the QR code displayed on the class board to enter the session.</p>
                         </div>
-                        
-                        <div class="input-group">
-                            <input type="text" id="register-name" placeholder="E.g., Akshay Sharma" class="modern-input" autocomplete="off">
-                            <i class="feather-user"></i>
+                        <div id="reader-container" class="qr-reader-wrapper hidden">
+                            <div id="reader"></div>
                         </div>
-
-                        <button id="register-btn" class="action-btn glow-btn">
-                            <span id="reg-mic-icon" class="btn-icon">🎤</span>
-                            <span id="reg-btn-text">Record & Register</span>
+                        <button id="start-scan-btn" class="action-btn glow-btn">
+                            <span class="btn-icon">📷</span>
+                            <span class="btn-text">Scan Session QR</span>
                         </button>
                     </div>
 
-                    <!-- Attendance Section -->
-                    <div id="section-attendance" class="section">
-                        <div class="instruction-box highlight-instruction">
-                            <p>Say loudly and clearly:</p>
-                            <h3>"I am [Your Name], present today"</h3>
+                    <!-- Teacher QR Generation Section -->
+                    <div id="section-teacher" class="section hidden">
+                        <div class="instruction-box">
+                            <p>Generate a dynamic QR code for students to scan. Expiry: 60s.</p>
+                        </div>
+                        <div id="qrcode-container" class="qrcode-wrapper">
+                            <div id="qrcode"></div>
+                            <p id="session-label" class="session-id-text">No active session</p>
+                        </div>
+                        <button id="start-session-btn" class="action-btn secondary-btn">
+                            <span class="btn-icon">⚡</span>
+                            <span class="btn-text">Start Attendance Session</span>
+                        </button>
+                    </div>
+
+                    <!-- Registration Section -->
+                    <div id="section-register" class="section hidden">
+                        <div class="instruction-box">
+                            <div class="step"><span>1</span> Enter your full name.</div>
+                            <div class="step"><span>2</span> Click "Record Voice" (3-5 seconds).</div>
+                            <div class="step"><span>3</span> Click "Register" to save.</div>
                         </div>
                         
-                        <button id="start-btn" class="action-btn glow-btn">
-                            <span id="att-mic-icon" class="btn-icon">🎤</span>
-                            <span id="att-btn-text">Start Attendance</span>
-                        </button>
+                        <div class="input-group">
+                            <input type="text" id="register-name" placeholder="Full Name" class="modern-input" autocomplete="off">
+                        </div>
+
+                        <div class="button-group">
+                            <button id="register-record-btn" class="action-btn secondary-btn">
+                                <span class="btn-icon">🎤</span>
+                                <span class="btn-text">Record Voice</span>
+                            </button>
+                            <button id="register-submit-btn" class="action-btn glow-btn" disabled>
+                                <span class="btn-icon">✅</span>
+                                <span class="btn-text">Register</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Attendance Section -->
+                    <div id="section-attendance" class="section hidden">
+                        <div class="instruction-box">
+                            <div class="step"><span>1</span> Enter your name.</div>
+                            <div class="step"><span>2</span> Read the <strong>Challenge Sentence</strong> below.</div>
+                            <div class="step"><span>3</span> Click "Record Voice" and say: <em>"I am [Name], [Challenge Sentence]"</em></div>
+                        </div>
+
+                        <div id="challenge-container" class="challenge-box hidden">
+                            <span class="challenge-label">Security Challenge:</span>
+                            <p id="challenge-text">Loading challenge...</p>
+                        </div>
+
+                        <div class="input-group">
+                            <input type="text" id="attendance-name" placeholder="Your Name" class="modern-input" autocomplete="off">
+                        </div>
+                        
+                        <div class="button-group">
+                            <button id="attendance-record-btn" class="action-btn secondary-btn">
+                                <span class="btn-icon">🎤</span>
+                                <span class="btn-text">Record Voice</span>
+                            </button>
+                            <button id="attendance-submit-btn" class="action-btn glow-btn" disabled>
+                                <span class="btn-icon">🔍</span>
+                                <span class="btn-text">Verify Attendance</span>
+                            </button>
+                        </div>
                     </div>
                 </div>
                 
@@ -112,6 +170,17 @@
                 </div>
                 
                 <audio id="audio-player" style="display: none;"></audio>
+            </div>
+
+            <!-- Disqualified Overlay -->
+            <div id="disqualified-overlay" class="termination-overlay hidden">
+                <div class="overlay-content">
+                    <div class="error-icon">⚠️</div>
+                    <h2>Session Terminated</h2>
+                    <p>Leaving the app or switching tabs is not allowed.</p>
+                    <p class="disqualify-msg">You are disqualified for this session.</p>
+                    <button onclick="location.reload()" class="action-btn text-btn">Close</button>
+                </div>
             </div>
         </main>
         
