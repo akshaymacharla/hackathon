@@ -5,6 +5,7 @@ import numpy as np
 import soundfile as sf
 import speech_recognition as sr
 from flask import Flask, request, jsonify, render_template
+from flask_cors import CORS
 from dotenv import load_dotenv
 
 # STRICT: Must use real resemblyzer. No fallback.
@@ -12,7 +13,8 @@ from resemblyzer import VoiceEncoder, preprocess_wav
 
 load_dotenv()
 
-app = Flask(__name__, template_folder='../frontend/templates', static_folder='../frontend/static')
+app = Flask(__name__)
+CORS(app)
 
 MURF_API_KEY = os.environ.get("MURF_API_KEY", "")
 STUDENTS_FILE = "students.json"
@@ -343,4 +345,5 @@ def generate_voice():
         return jsonify({"error": f"Murf API Error: {str(e)}"}), 500
 
 if __name__ == "__main__":
-    app.run(debug=True, port=5000)
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port, debug=False)

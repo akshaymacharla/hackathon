@@ -1,3 +1,8 @@
+// -----------------------
+// Deployment Config
+// -----------------------
+const BACKEND_URL = "https://YOUR_BACKEND_URL"; // REPLACE THIS AFTER DEPLOYING TO RENDER
+
 document.addEventListener('DOMContentLoaded', () => {
     // -----------------------
     // UI Elements
@@ -79,7 +84,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function fetchNewChallenge() {
         try {
-            const res = await fetch('/get-challenge');
+            const res = await fetch(`${BACKEND_URL}/get-challenge`);
             const data = await res.json();
             currentChallenge = data.challenge;
             if (challengeText) {
@@ -176,7 +181,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // -----------------------
     startSessionBtn.addEventListener('click', async () => {
         try {
-            const res = await fetch('/api/start-session', { method: 'POST' });
+            const res = await fetch(`${BACKEND_URL}/api/start-session`, { method: 'POST' });
             const data = await res.json();
             currentSessionId = data.session_id;
             sessionLabel.textContent = `Session ID: ${currentSessionId}`;
@@ -256,7 +261,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Inform Backend
         try {
-            await fetch('/api/disqualify', {
+            await fetch(`${BACKEND_URL}/api/disqualify`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ session_id: currentSessionId, name: name })
@@ -439,7 +444,7 @@ document.addEventListener('DOMContentLoaded', () => {
             registerSubmitBtn.disabled = true;
             
             console.log(`DEBUG: Registering ${name}...`);
-            const res = await fetch('/register', { method: 'POST', body: formData });
+            const res = await fetch(`${BACKEND_URL}/register`, { method: 'POST', body: formData });
             const data = await res.json();
             
             if (!res.ok) throw new Error(data.error || 'Registration failed');
@@ -476,7 +481,7 @@ document.addEventListener('DOMContentLoaded', () => {
             attendanceSubmitBtn.disabled = true;
             
             console.log("DEBUG: Verifying attendance...");
-            const verifyRes = await fetch('/attendance', { method: 'POST', body: formData });
+            const verifyRes = await fetch(`${BACKEND_URL}/attendance`, { method: 'POST', body: formData });
             const verifyData = await verifyRes.json();
             
             // Handle suspicious detection
@@ -496,7 +501,7 @@ document.addEventListener('DOMContentLoaded', () => {
             
             // Speak the response
             if (verifyData.message) {
-                const ttsRes = await fetch('/murf-response', {
+                const ttsRes = await fetch(`${BACKEND_URL}/murf-response`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ text: verifyData.message })
