@@ -8,4 +8,4 @@ SpeechRecognition==3.10.0
 resemblyzer==0.1.4
 python-dotenv==1.0.0
 gunicorn==21.2.0
-torch>=2.2.0
+torch
